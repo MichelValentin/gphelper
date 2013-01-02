@@ -1,1 +1,0 @@
-java -jar gphelper.jar
