@@ -36,6 +36,7 @@ public class SystemCommand {
                 for (i = 0; i < stdin.size(); i++) {
                     writer.write(stdin.get(i));
                     writer.newLine();
+                    writer.flush();
                 }
                 writer.close();
             }
