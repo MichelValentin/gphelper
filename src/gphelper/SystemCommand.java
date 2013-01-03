@@ -3,7 +3,6 @@ package gphelper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -30,7 +29,11 @@ public class SystemCommand {
         stderr.clear();
         
         try {	
-            Process p=Runtime.getRuntime().exec(command);
+            //Process p=Runtime.getRuntime().exec(command);
+            String[] cmd = command.split(" ");
+            ProcessBuilder pb= new ProcessBuilder(cmd);
+            Process p = pb.start();
+            
             if (stdin.size() > 0) {
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
                 for (i = 0; i < stdin.size(); i++) {
@@ -40,16 +43,14 @@ public class SystemCommand {
                 }
                 writer.close();
             }
-		
-            p.waitFor();
-
+            
             BufferedReader reader=new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String line=reader.readLine();
             while(line!=null)	{
                 stderr.add(line);
                 line=reader.readLine();
             }
-
+            
             reader=new BufferedReader(new InputStreamReader(p.getInputStream()));
             line=reader.readLine();
             while(line!=null)	{
@@ -57,12 +58,11 @@ public class SystemCommand {
                 ok = true;
                 line=reader.readLine();
             }
+            
+            p.waitFor();
         }
-        catch(IOException e1) {
+        catch(Exception e1) {
             stderr.add(e1.getMessage());
-        }
-        catch(InterruptedException e2) {
-            stderr.add(e2.getMessage());
         }
 	
         return ok;
