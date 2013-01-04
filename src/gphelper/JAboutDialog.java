@@ -127,7 +127,7 @@ public String getVersionfinal (Class classe) {
 			if (index != -1) {
 				String jarPath = path.substring(0, index + jarExt.length());
 				File file = new File(jarPath);
-				String jarVersion = file.getName();
+				//String jarVersion = file.getName();
 				JarFile jarFile = new JarFile(new File(new URI(jarPath)));
 				JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
 				version = sdf.format(new Date(entry.getTime()));
