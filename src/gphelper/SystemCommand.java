@@ -29,9 +29,10 @@ public class SystemCommand {
         stderr.clear();
         
         try {	
-            //Process p=Runtime.getRuntime().exec(command);
-            String[] cmd = command.split(" ");
+            String   line;
+            String[] cmd  = command.split(" ");
             ProcessBuilder pb= new ProcessBuilder(cmd);
+            pb.redirectErrorStream(true);
             Process p = pb.start();
             
             if (stdin.size() > 0) {
@@ -44,22 +45,18 @@ public class SystemCommand {
                 writer.close();
             }
             
-            BufferedReader reader=new BufferedReader(new InputStreamReader(p.getErrorStream()));
-            String line=reader.readLine();
-            while(line!=null)	{
-                stderr.add(line);
-                line=reader.readLine();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            while((line=reader.readLine()) != null) {
+                if (line.startsWith("gpg:")) {
+                    stderr.add(line);
+                }
+                else {
+                    stdout.add(line);
+                }
             }
             
-            reader=new BufferedReader(new InputStreamReader(p.getInputStream()));
-            line=reader.readLine();
-            while(line!=null)	{
-                stdout.add(line);
-                ok = true;
-                line=reader.readLine();
-            }
-            
-            p.waitFor();
+            int exitCode = p.waitFor();
+            ok = (exitCode == 0) ? true : false;
         }
         catch(Exception e1) {
             stderr.add(e1.getMessage());
