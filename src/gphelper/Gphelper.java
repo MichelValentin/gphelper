@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 
 
 public class Gphelper extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form Gphelper
      */
@@ -23,7 +23,6 @@ public class Gphelper extends javax.swing.JFrame {
         initComponents();
         boolean bOk;
         String errText = "";
-        
         SystemCommand cmd = new SystemCommand();
         gpgCommand = "gpg2";
         cmd.setCommand(gpgCommand + " --batch --version");
@@ -374,6 +373,9 @@ public class Gphelper extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenuEncrypt = new javax.swing.JMenuItem();
         jMenuDecrypt = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        jMenuAbout = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
         jMenuExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuCut = new javax.swing.JMenuItem();
@@ -466,6 +468,17 @@ public class Gphelper extends javax.swing.JFrame {
             }
         });
         jMenu1.add(jMenuDecrypt);
+        jMenu1.add(jSeparator1);
+
+        jMenuAbout.setMnemonic('A');
+        jMenuAbout.setText("About");
+        jMenuAbout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuAboutActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuAbout);
+        jMenu1.add(jSeparator2);
 
         jMenuExit.setMnemonic('x');
         jMenuExit.setText("Exit");
@@ -608,6 +621,10 @@ public class Gphelper extends javax.swing.JFrame {
     private void jTextArea1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextArea1MouseReleased
         checkForTriggerEvent(evt);
     }//GEN-LAST:event_jTextArea1MouseReleased
+
+    private void jMenuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuAboutActionPerformed
+        new JAboutDialog(this,true).setVisible(true);
+    }//GEN-LAST:event_jMenuAboutActionPerformed
     
     private void checkForTriggerEvent(java.awt.event.MouseEvent e) {
         if ( e.isPopupTrigger() ) {
@@ -657,6 +674,7 @@ public class Gphelper extends javax.swing.JFrame {
     private javax.swing.JButton jButtonEncrypt;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuItem jMenuAbout;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuCopy;
     private javax.swing.JMenuItem jMenuCut;
@@ -671,6 +689,8 @@ public class Gphelper extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JMenuItem jPopupPaste;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
     private String gpgCommand;
