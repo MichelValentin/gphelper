@@ -54,6 +54,7 @@ public class SystemCommand {
                     stdout.add(line);
                 }
             }
+            reader.close();
             
             int exitCode = p.waitFor();
             ok = (exitCode == 0) ? true : false;

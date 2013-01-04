@@ -16,9 +16,6 @@ import javax.swing.JTextField;
 
 public class Gphelper extends javax.swing.JFrame {
     
-    /**
-     * Creates new form Gphelper
-     */
     public Gphelper() {
         initComponents();
         boolean bOk;

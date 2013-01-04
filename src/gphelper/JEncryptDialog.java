@@ -8,9 +8,6 @@ import javax.swing.table.DefaultTableModel;
 
 public class JEncryptDialog extends javax.swing.JDialog {
 
-    /**
-     * Creates new form JEncryptDialog
-     */
     public JEncryptDialog(Gphelper parent, boolean modal) {
         super(parent, modal);
         this.Signed = false;
