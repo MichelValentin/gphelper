@@ -1,2 +1,3 @@
 @echo off
-java -jar gphelper.jar
+set MYDIR=%~dp0
+java -jar %MYDIR%gphelper.jar

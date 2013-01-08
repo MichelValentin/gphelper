@@ -1,4 +1,4 @@
 #!/bin/sh
 
-java -jar gphelper.jar
+java -jar `dirname $0`/gphelper.jar
 
