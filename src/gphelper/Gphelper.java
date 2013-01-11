@@ -51,6 +51,7 @@ public class Gphelper extends javax.swing.JFrame {
             if ((publicKeyIds.size() != publicKeys.size()) ||
                  secretKeyIds.size() != secretKeys.size()) {
                 errText = "Internal error.\nInvalid programmer.";
+                bOk = false;
             }
         }
         if (bOk == false) {
@@ -293,7 +294,7 @@ public class Gphelper extends javax.swing.JFrame {
         int selEnd          = Text.indexOf(endMarker);
         
         if (selStart > -1 && selEnd > -1 && selEnd > selStart) {
-            selEnd = selEnd + endMarker.length() + 1;
+            selEnd = selEnd + endMarker.length();
             cipherText = Text.substring(selStart, selEnd);
             beforeText = Text.substring(0, selStart);
             afterText  = Text.substring(selEnd);
