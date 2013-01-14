@@ -1,13 +1,17 @@
 package gphelper;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.font.TextAttribute;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -22,9 +26,17 @@ public class JAboutDialog extends javax.swing.JDialog {
         }
         setTitle("About gphelper");
         jLabelDescription.setText("GnuPG Helper");
+        Font curFont = jLabelDescription.getFont();
+        jLabelDescription.setFont(new Font(curFont.getFontName(), Font.BOLD, curFont.getSize()));
         jLabelCopyright.setText("Copyright (c) 2013 Michel Valentin");
         jLabelVersion.setText(version);
-
+        jLabelUrl.setText("http://michelvalentin.github.com/gphelper/");
+        curFont = jLabelUrl.getFont();
+        Map attributes = curFont.getAttributes();
+        attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+        jLabelUrl.setFont(curFont.deriveFont(attributes));
+//        jLabelUrl.setText("<html><u>http://michelvalentin.github.com/gphelper/</u>");
+ 
         Rectangle parentBounds = parent.getBounds();
         Dimension size = getSize();
         int x = Math.max(0, parentBounds.x + (parentBounds.width - size.width) / 2);
@@ -45,6 +57,7 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelDescription = new javax.swing.JLabel();
         jLabelCopyright = new javax.swing.JLabel();
         jLabelVersion = new javax.swing.JLabel();
+        jLabelUrl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("About");
@@ -66,26 +79,35 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelVersion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelVersion.setText("Version");
 
+        jLabelUrl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelUrl.setText("http://michelvalentin.github.com/gphelper/");
+        jLabelUrl.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jLabelUrlMousePressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(209, 209, 209)
-                .addComponent(jButtonOk, javax.swing.GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+                .addComponent(jButtonOk, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(218, 218, 218))
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabelDescription, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabelCopyright, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabelDescription, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabelCopyright, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabelVersion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelUrl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -97,7 +119,9 @@ public class JAboutDialog extends javax.swing.JDialog {
                 .addComponent(jLabelCopyright)
                 .addGap(29, 29, 29)
                 .addComponent(jLabelVersion)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                .addGap(29, 29, 29)
+                .addComponent(jLabelUrl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addComponent(jButtonOk)
                 .addContainerGap())
         );
@@ -109,6 +133,23 @@ public class JAboutDialog extends javax.swing.JDialog {
         setVisible(false);
         dispose();
     }//GEN-LAST:event_jButtonOkActionPerformed
+
+    private void jLabelUrlMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelUrlMousePressed
+        if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1) {
+             java.awt.Desktop desktop = java.awt.Desktop.getDesktop(); 
+             if(desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                String url = jLabelUrl.getText();
+                 try { 
+                     java.net.URI uri = new java.net.URI(url); 
+                     desktop.browse(uri); 
+                 } 
+                 catch (Exception e) 
+                 { 
+
+                 } 
+             }
+        }
+    }//GEN-LAST:event_jLabelUrlMousePressed
 
 public String getVersionfinal (Class classe) {
 	String version = null;
@@ -146,6 +187,7 @@ public String getVersionfinal (Class classe) {
     private javax.swing.JButton jButtonOk;
     private javax.swing.JLabel jLabelCopyright;
     private javax.swing.JLabel jLabelDescription;
+    private javax.swing.JLabel jLabelUrl;
     private javax.swing.JLabel jLabelVersion;
     // End of variables declaration//GEN-END:variables
 }
