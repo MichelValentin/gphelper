@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.io.File;
 import java.net.URI;
@@ -30,12 +29,12 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelDescription.setFont(new Font(curFont.getFontName(), Font.BOLD, curFont.getSize()));
         jLabelCopyright.setText("Copyright (c) 2013 Michel Valentin");
         jLabelVersion.setText(version);
-        jLabelUrl.setText("http://michelvalentin.github.com/gphelper/");
+        jLabelUrl.setText("GnuPg Helper Home page");
+        jLabelUrl.setToolTipText("http://michelvalentin.github.com/gphelper/");
         curFont = jLabelUrl.getFont();
         Map attributes = curFont.getAttributes();
         attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
         jLabelUrl.setFont(curFont.deriveFont(attributes));
-//        jLabelUrl.setText("<html><u>http://michelvalentin.github.com/gphelper/</u>");
  
         Rectangle parentBounds = parent.getBounds();
         Dimension size = getSize();
@@ -61,6 +60,8 @@ public class JAboutDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("About");
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setModal(true);
         setResizable(false);
 
         jButtonOk.setText("Ok");
@@ -80,7 +81,7 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelVersion.setText("Version");
 
         jLabelUrl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabelUrl.setText("http://michelvalentin.github.com/gphelper/");
+        jLabelUrl.setText("GnuPG Helper HomePage");
         jLabelUrl.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jLabelUrlMousePressed(evt);
@@ -135,18 +136,21 @@ public class JAboutDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_jButtonOkActionPerformed
 
     private void jLabelUrlMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelUrlMousePressed
-        if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1) {
-             java.awt.Desktop desktop = java.awt.Desktop.getDesktop(); 
-             if(desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
-                String url = jLabelUrl.getText();
-                 try { 
-                     java.net.URI uri = new java.net.URI(url); 
-                     desktop.browse(uri); 
-                 } 
-                 catch (Exception e) 
-                 { 
-
-                 } 
+        if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1 && jLabelUrl.isEnabled()) {
+             if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop desktop = java.awt.Desktop.getDesktop(); 
+                if(desktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+                   String url = jLabelUrl.getToolTipText();
+                    try { 
+                        java.net.URI uri = new java.net.URI(url); 
+                        desktop.browse(uri); 
+                    } 
+                    catch (Exception e)  { 
+                    } 
+                    finally {
+                        jLabelUrl.setEnabled(false);
+                    }
+                }
              }
         }
     }//GEN-LAST:event_jLabelUrlMousePressed
