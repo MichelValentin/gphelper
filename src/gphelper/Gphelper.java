@@ -223,21 +223,25 @@ public class Gphelper extends javax.swing.JFrame {
             JEncryptDialog dlg = new JEncryptDialog(this, true);
             int result = dlg.showDialog();
             if (result == 1) {
-                boolean bSign = dlg.isSigned();
                 int[]   publicKeysIdx = dlg.getSelectedPublicKeys();
                 int     secretKeysIdx = dlg.getSelectedSecretKey();
+                boolean bSign = dlg.isSigned();
+                boolean bEncrypt = publicKeysIdx.length > 0;
                 SystemCommand cmd = new SystemCommand();
 
-                if (publicKeysIdx.length > 0) {
-                    String command = gpgCommand + " --batch --quiet --encrypt --armor --always-trust";
-                    for (int i = 0; i < publicKeysIdx.length; i++) {
-                        int idx = publicKeysIdx[i];
-                        command = command + " --recipient " + publicKeyIds.get(idx);
+                if (bEncrypt || bSign) {
+                    String command = gpgCommand + " --batch --quiet --armor --always-trust";
+                    if (bEncrypt) {
+                        command = command + " --encrypt";
+                        for (int i = 0; i < publicKeysIdx.length; i++) {
+                            int idx = publicKeysIdx[i];
+                            command = command + " --recipient " + publicKeyIds.get(idx);
+                        }
                     }
                     if (bSign) {
                         String password = enterPassphrase();   
                         if (password != null) {
-                            command = command + " --sign";
+                            command = bEncrypt ? command + " --sign" : command + " --detach-sign";
                             if (secretKeysIdx != -1) {
                                 command = command + " --default-key " + secretKeyIds.get(secretKeysIdx);
                             }
@@ -254,7 +258,7 @@ public class Gphelper extends javax.swing.JFrame {
                         bOk = cmd.run();
                     }
                     if (bOk) {
-                        String txt = "";
+                        String txt = bEncrypt ? "" : clearText + "\n";
                         List<String> stdout = cmd.getStdout();
                         for (int i = 0; i < stdout.size(); i++) {
                             txt = txt + stdout.get(i) + "\n";
@@ -341,11 +345,11 @@ public class Gphelper extends javax.swing.JFrame {
         Object[]    ob = {jLabelPassword, jTextFieldPassword};
 
         int result = JOptionPane.showConfirmDialog(this, ob, "Please enter passphrase", JOptionPane.OK_CANCEL_OPTION);
-        
-        if (result == JOptionPane.OK_OPTION) {
-            password = jTextFieldPassword.getText();
-        }
-        
+         
+         if (result == JOptionPane.OK_OPTION) {
+         password = jTextFieldPassword.getText();
+         }
+
         return(password);
     }
     

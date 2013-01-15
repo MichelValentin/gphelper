@@ -210,6 +210,7 @@ public class JEncryptDialog extends javax.swing.JDialog {
     private void jCheckBox1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCheckBox1StateChanged
         jTable2.setEnabled(jCheckBox1.isSelected());
         Signed = jCheckBox1.isSelected();
+        jButtonOk.setEnabled(Signed || (jTable1.getSelectedRowCount() > 0));
     }//GEN-LAST:event_jCheckBox1StateChanged
 
     public int showDialog() {
