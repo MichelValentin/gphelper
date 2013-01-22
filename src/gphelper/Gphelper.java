@@ -241,7 +241,7 @@ public class Gphelper extends javax.swing.JFrame {
                     if (bSign) {
                         String password = enterPassphrase();   
                         if (password != null) {
-                            command = bEncrypt ? command + " --sign" : command + " --detach-sign";
+                            command = bEncrypt ? command + " --sign" : command + " --clearsign";
                             if (secretKeysIdx != -1) {
                                 command = command + " --default-key " + secretKeyIds.get(secretKeysIdx);
                             }
@@ -258,7 +258,7 @@ public class Gphelper extends javax.swing.JFrame {
                         bOk = cmd.run();
                     }
                     if (bOk) {
-                        String txt = bEncrypt ? "" : clearText + "\n";
+                        String txt = "";
                         List<String> stdout = cmd.getStdout();
                         for (int i = 0; i < stdout.size(); i++) {
                             txt = txt + stdout.get(i) + "\n";
@@ -288,17 +288,24 @@ public class Gphelper extends javax.swing.JFrame {
      * Decrypt text
      */
     private void decrypt() {
-        String startMarker  = "-----BEGIN PGP MESSAGE-----";
-        String endMarker    = "-----END PGP MESSAGE-----";
+        String startMarker  = "-----BEGIN PGP ";
+        String endMarker1    = "-----END PGP MESSAGE-----";
+        String endMarker2    = "-----END PGP SIGNATURE-----";
         String Text         = jTextArea1.getText();
         String cipherText   = Text;
         String beforeText   = "";
         String afterText    = "";
         int selStart        = Text.indexOf(startMarker);
-        int selEnd          = Text.indexOf(endMarker);
+        int selEnd          = Text.indexOf(endMarker1);
+        int endMarkerLength = endMarker1.length();
+        
+        if (selEnd == -1) {
+            selEnd = Text.indexOf(endMarker2);
+            endMarkerLength = endMarker2.length();
+        }
         
         if (selStart > -1 && selEnd > -1 && selEnd > selStart) {
-            selEnd = selEnd + endMarker.length();
+            selEnd = selEnd + endMarkerLength;
             cipherText = Text.substring(selStart, selEnd);
             beforeText = Text.substring(0, selStart);
             afterText  = Text.substring(selEnd);
@@ -315,7 +322,7 @@ public class Gphelper extends javax.swing.JFrame {
                     String txt = "";
                     List<String> stdout = cmd.getStdout();
                     for (int i = 0; i < stdout.size(); i++) {
-                        txt = txt + stdout.get(i) + "\n";
+                        txt = txt + stdout.get(i);// + "\n";
                     }
                     jTextArea1.setText(beforeText + txt + afterText);
                     List<String> stderr = cmd.getStderr();
