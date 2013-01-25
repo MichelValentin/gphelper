@@ -1,0 +1,9 @@
+#!/bin/sh
+
+rm -v bin/*
+zip -j -v bin/gphelper.zip dist/gphelper.jar gph.sh gph.bat
+
+#cp -v dist/gphelper.jar bin/
+#cp -v gph.sh bin/
+#cp -v gph.bat bin/
+
