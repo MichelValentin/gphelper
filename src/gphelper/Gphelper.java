@@ -346,17 +346,9 @@ public class Gphelper extends javax.swing.JFrame {
     }
 
     String enterPassphrase() {
-        String      password = null;
-        JLabel      jLabelPassword = new JLabel("Passphrase");
-        JTextField  jTextFieldPassword = new JPasswordField();
-        Object[]    ob = {jLabelPassword, jTextFieldPassword};
-
-        int result = JOptionPane.showConfirmDialog(this, ob, "Please enter passphrase", JOptionPane.OK_CANCEL_OPTION);
-         
-         if (result == JOptionPane.OK_OPTION) {
-         password = jTextFieldPassword.getText();
-         }
-
+        String              password;
+        JPassPhraseDialog   dlg = new JPassPhraseDialog(this, true);
+        password = dlg.showDialog();
         return(password);
     }
     
