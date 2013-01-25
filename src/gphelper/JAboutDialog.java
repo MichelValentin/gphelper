@@ -155,16 +155,14 @@ public class JAboutDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_jLabelUrlMousePressed
 
-public String getVersionfinal (Class classe) {
-	String version = null;
-	String shortClassName = classe.getName().substring(classe.getName().lastIndexOf(".") + 1);
+private String getVersionfinal (Class classe) {
+	String version = "";
+    
 	try {
 		ClassLoader cl = this.getClass().getClassLoader();
 		String threadContexteClass = classe.getName().replace('.', '/');
 		URL url = cl.getResource(threadContexteClass + ".class");
-		if ( url == null ) {
-			version = "";
-		} else {
+		if ( url != null ) {
 			String path = url.getPath();
 			String jarExt = ".jar";
 			int index = path.indexOf(jarExt);
@@ -181,9 +179,8 @@ public String getVersionfinal (Class classe) {
 				version = sdf.format(new Date(file.lastModified()));
 			}
 		}
-	} catch (Exception e) {
-		version = "";
-	}
+	} catch (Exception e) { }
+    
 	return version;
 }
 
