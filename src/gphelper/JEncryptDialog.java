@@ -30,6 +30,10 @@ public class JEncryptDialog extends javax.swing.JDialog {
         jTable1.getSelectionModel().addListSelectionListener(listener);
         Encrypt = true;
         jButtonOk.setEnabled(false);
+        jRadioButton3.setVisible(false);
+        jRadioButton3.setEnabled(false);
+        jRadioButton4.setVisible(false);
+        jRadioButton4.setEnabled(false);
        
     }
 
@@ -43,6 +47,7 @@ public class JEncryptDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        buttonGroup2 = new javax.swing.ButtonGroup();
         jEncryptCheckBox = new javax.swing.JCheckBox();
         jRadioButton1 = new javax.swing.JRadioButton();
         jLabel1 = new javax.swing.JLabel();
@@ -55,6 +60,8 @@ public class JEncryptDialog extends javax.swing.JDialog {
         jTable2 = new javax.swing.JTable();
         jButtonOk = new javax.swing.JButton();
         jButtonCancel = new javax.swing.JButton();
+        jRadioButton3 = new javax.swing.JRadioButton();
+        jRadioButton4 = new javax.swing.JRadioButton();
 
         setTitle("Encrypt text");
         setModal(true);
@@ -179,6 +186,24 @@ public class JEncryptDialog extends javax.swing.JDialog {
             }
         });
 
+        buttonGroup2.add(jRadioButton3);
+        jRadioButton3.setText("ASCII output");
+        jRadioButton3.setEnabled(false);
+        jRadioButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton3ActionPerformed(evt);
+            }
+        });
+
+        buttonGroup2.add(jRadioButton4);
+        jRadioButton4.setText("Binary output");
+        jRadioButton4.setEnabled(false);
+        jRadioButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -200,10 +225,16 @@ public class JEncryptDialog extends javax.swing.JDialog {
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jEncryptCheckBox)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(92, 92, 92)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jRadioButton1)
-                            .addComponent(jRadioButton2)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jRadioButton4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jRadioButton2))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jRadioButton3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jRadioButton1))))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(59, 59, 59)))
@@ -218,9 +249,12 @@ public class JEncryptDialog extends javax.swing.JDialog {
                 .addContainerGap(18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jEncryptCheckBox)
-                    .addComponent(jRadioButton1))
+                    .addComponent(jRadioButton1)
+                    .addComponent(jRadioButton3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jRadioButton4))
                 .addGap(11, 11, 11)
                 .addComponent(jLabel1)
                 .addGap(6, 6, 6)
@@ -294,6 +328,14 @@ public class JEncryptDialog extends javax.swing.JDialog {
         jButtonOk.setEnabled(true);
     }//GEN-LAST:event_jRadioButton2ActionPerformed
 
+    private void jRadioButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton3ActionPerformed
+        Ascii = true;
+    }//GEN-LAST:event_jRadioButton3ActionPerformed
+
+    private void jRadioButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton4ActionPerformed
+        Ascii = false;
+    }//GEN-LAST:event_jRadioButton4ActionPerformed
+
     public int showDialog() {
         setVisible(true);
         return result;
@@ -323,8 +365,23 @@ public class JEncryptDialog extends javax.swing.JDialog {
         return Encrypt;
     }
     
+    public boolean isAscii() {
+        return Ascii;
+    }
+    
+    public void setFileEncryption(String fileName) {
+        jRadioButton3.setVisible(true);
+        jRadioButton3.setEnabled(true);
+        jRadioButton4.setVisible(true);
+        jRadioButton4.setEnabled(true);
+        jRadioButton4.setSelected(true);
+        setTitle("Encrypt file " + fileName);
+        Ascii = false;
+        
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton jButtonCancel;
     private javax.swing.JButton jButtonOk;
     private javax.swing.JCheckBox jEncryptCheckBox;
@@ -332,6 +389,8 @@ public class JEncryptDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
+    private javax.swing.JRadioButton jRadioButton3;
+    private javax.swing.JRadioButton jRadioButton4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JCheckBox jSignCheckBox;
@@ -342,6 +401,7 @@ public class JEncryptDialog extends javax.swing.JDialog {
     private boolean Symmetric;
     private boolean Encrypt;
     private boolean Signed;
+    private boolean Ascii;
     private int[]   selectedPublicKeys;
     private int     selectedSecretKey;
     

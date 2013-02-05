@@ -49,24 +49,24 @@
             <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuEncrypt">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuEncryptFile">
               <Properties>
                 <Property name="mnemonic" type="int" value="69"/>
-                <Property name="text" type="java.lang.String" value="Encrypt"/>
-                <Property name="toolTipText" type="java.lang.String" value="Encrypt text"/>
+                <Property name="text" type="java.lang.String" value="Encrypt File"/>
+                <Property name="toolTipText" type="java.lang.String" value="Encrypt / Sign File"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuEncryptActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuEncryptFileActionPerformed"/>
               </Events>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuDecrypt">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuDecryptFile">
               <Properties>
                 <Property name="mnemonic" type="int" value="68"/>
-                <Property name="text" type="java.lang.String" value="Decrypt"/>
-                <Property name="toolTipText" type="java.lang.String" value="Decrypt text"/>
+                <Property name="text" type="java.lang.String" value="Decrypt File"/>
+                <Property name="toolTipText" type="java.lang.String" value="Decrypt / Verify File"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuDecryptActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuDecryptFileActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator1">
@@ -187,7 +187,7 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="513" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" pref="517" max="32767" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButtonDecrypt" alignment="3" min="-2" max="-2" attributes="0"/>

@@ -4,10 +4,12 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 
@@ -61,8 +63,8 @@ public class Gphelper extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
             jButtonEncrypt.setEnabled(false);
             jButtonDecrypt.setEnabled(false);
-            jMenuEncrypt.setEnabled(false);
-            jMenuDecrypt.setEnabled(false);
+            jMenuEncryptFile.setEnabled(false);
+            jMenuDecryptFile.setEnabled(false);
         }
     }
     
@@ -220,9 +222,6 @@ public class Gphelper extends javax.swing.JFrame {
             JEncryptDialog dlg = new JEncryptDialog(this, true);
             int result = dlg.showDialog();
             if (result == 1) {
-                // save dlg results
-                // if symmetric, call symmetric-encrypt
-                // else call public encrypt 
                 int[]   publicKeysIdx = dlg.getSelectedPublicKeys();
                 int     secretKeysIdx = dlg.getSelectedSecretKey();
                 boolean bSign = dlg.isSigned();
@@ -231,45 +230,26 @@ public class Gphelper extends javax.swing.JFrame {
                 SystemCommand cmd = new SystemCommand();
                 /* SYMMETRIC */
                 if (bSymmetric) {
-                    String passPhrase1;
-                    String passPhrase2;
+                    String passPhrase;
                     String command = gpgCommand + " --batch --quiet --armor --cipher-algo AES --symmetric";
-                    passPhrase1 = enterPassphrase();
-                    if (passPhrase1 != null) {
-                        passPhrase2 = enterPassphrase("Please repeat passphrase");
-                        if (passPhrase2 != null) {
-                            if (passPhrase1.compareTo(passPhrase2) == 0) {
-                                command = command + " --passphrase " + passPhrase1;
-                                cmd.setCommand(command);
-                                cmd.setStdin(clearText.trim());
-                                bOk = cmd.run();
-                                if (bOk) {
-                                    String txt = "";
-                                    List<String> stdout = cmd.getStdout();
-                                    for (int i = 0; i < stdout.size(); i++) {
-                                        txt = txt + stdout.get(i) + "\n";
-                                    }
-                                    jTextArea1.setText(beforeText + txt + afterText);
-                                    copy();
-                                }
-                            }
-                            else {
-                                bOk = false;
-                                errText = "Passphrases do not match";
-                            }
+                    passPhrase = enterPassphrase(true);
+                    command = command + " --passphrase " + passPhrase;
+                    cmd.setCommand(command);
+                    cmd.setStdin(clearText.trim());
+                    bOk = cmd.run();
+                    if (bOk) {
+                        String txt = "";
+                        List<String> stdout = cmd.getStdout();
+                        for (int i = 0; i < stdout.size(); i++) {
+                            txt = txt + stdout.get(i) + "\n";
                         }
-                        else {
-                            bOk = false;
-                            errText = "Operation canceled.";
-                        }
+                        jTextArea1.setText(beforeText + txt + afterText);
+                        copy();
                     }
                     else {
                         bOk = false;
                         errText = "Operation canceled.";
                     }
-
-
-
                 }
                 /* PUBLIC KEY */
                 else if (bEncrypt || bSign) {
@@ -314,6 +294,7 @@ public class Gphelper extends javax.swing.JFrame {
                     bOk = false;
                     errText = "No recipient have been selected.";
                 }
+
                 if (bOk == false) {
                     if (errText.length() == 0) {
                         List<String> stderr = cmd.getStderr();
@@ -387,18 +368,172 @@ public class Gphelper extends javax.swing.JFrame {
             }
         }
     }
+    
+    private void encryptFile() {
+        String errText      = "";
+        boolean bOk         = true;
+        String clearFilename;
+        JFileChooser chooser = new JFileChooser();
+        
+        //FileNameExtensionFilter filter = new FileNameExtensionFilter("All files", "*");
+        //chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            clearFilename = file.getName();
+            JEncryptDialog dlg = new JEncryptDialog(this, true);
+            dlg.setFileEncryption(clearFilename);
+            int result = dlg.showDialog();
+            if (result == 1) {
+                int[]   publicKeysIdx = dlg.getSelectedPublicKeys();
+                int     secretKeysIdx = dlg.getSelectedSecretKey();
+                boolean bSign = dlg.isSigned();
+                boolean bEncrypt = dlg.isEncrypt();
+                boolean bSymmetric = dlg.isSymmetric();
+                boolean bAscii = dlg.isAscii();
+                SystemCommand cmd = new SystemCommand();
+                String passPhrase;
+                String command = gpgCommand + " --batch --quiet --yes";
+                if (bAscii) {
+                    command = command + " --armor";
+                }
+                    command = command + " --cipher-algo AES";
+                /* SYMMETRIC */
+                if (bSymmetric) {
+                    passPhrase = enterPassphrase(true);
+                    if (passPhrase != null) {
+                        command = command + " --passphrase " + passPhrase;
+                        command = command + " --symmetric ";
+                        command = command + file.getAbsolutePath();
+                        cmd.setCommand(command);
+                        bOk = cmd.run();
+                        if (bOk) {
+                            String txt = "";
+                            List<String> stdout = cmd.getStdout();
+                            for (int i = 0; i < stdout.size(); i++) {
+                                txt = txt + stdout.get(i) + "\n";
+                            }
+                            txt = txt + "file " + file.getAbsolutePath() + " \nencrypted as " + file.getAbsolutePath(); 
+                            txt = txt + (bAscii ? ".asc" : ".gpg");
+                            txt = txt + " \nwith a symmetric key\n";
+                            jTextArea1.setText(txt);
+
+                        }
+                    }
+                    else {
+                        bOk = false;
+                        errText = "Operation canceled.";
+                    }
+                }
+                /* PUBLIC KEY */
+                else if (bEncrypt || bSign) {
+                    command = command + " --always-trust --force-mdc";
+                    if (bEncrypt) {
+                        command = command + " --encrypt";
+                        for (int i = 0; i < publicKeysIdx.length; i++) {
+                            int idx = publicKeysIdx[i];
+                            command = command + " --recipient " + publicKeyIds.get(idx);
+                        }
+                    }
+                    if (bSign) {
+                        String password = enterPassphrase();   
+                        if (password != null) {
+                            command = bEncrypt ? command + " --sign" : command + " --detach-sign";
+                            if (secretKeysIdx != -1) {
+                                command = command + " --default-key " + secretKeyIds.get(secretKeysIdx);
+                            }
+                            command = command + " --passphrase " + password;
+                        }
+                        else {
+                            bOk = false;
+                            errText = "Operation canceled.";
+                        }
+                    }
+                    if (bOk) {
+                       command = command + " " + file.getAbsolutePath();
+                       cmd.setCommand(command);
+                        bOk = cmd.run();
+                    }
+                    if (bOk) {
+                        String txt = "";
+                        List<String> stdout = cmd.getStdout();
+                        for (int i = 0; i < stdout.size(); i++) {
+                            txt = txt + stdout.get(i) + "\n";
+                        }
+                        txt = txt + "file " + file.getAbsolutePath() + " \n";
+                        if (bEncrypt) {
+                            txt = txt + "encrypted as " + file.getAbsolutePath(); 
+                            txt = txt + (bAscii ? ".asc" : ".gpg") + " \n";
+                            txt = txt + "with public key(s) \n";
+                            for (int i = 0; i < publicKeysIdx.length; i++) {
+                                int idx = publicKeysIdx[i];
+                                txt = txt + publicKeyIds.get(idx) + "\t" + publicKeys.get(idx) + " \n";
+                            }
+                        }
+                        if (bSign) {
+                            txt = txt + "signed ";
+                            if (!bEncrypt) {
+                                txt = txt + "as " + file.getAbsolutePath();
+                                txt = txt + (bAscii ? ".asc" : ".sig") + " \n";
+                            };
+                            if (secretKeysIdx != -1) {
+                                txt = txt + " \nby secret key \n";
+                                txt = txt + secretKeyIds.get(secretKeysIdx) + "\t" + secretKeys.get(secretKeysIdx) + " \n";
+                            }
+                            else {
+                                txt = txt + " \nby default secret key \n";
+                            }
+                        }
+
+                        jTextArea1.setText(txt);
+                    }
+                }
+                else {
+                    bOk = false;
+                    errText = "No recipient have been selected.";
+                }
+
+                if (bOk == false) {
+                    if (errText.length() == 0) {
+                        List<String> stderr = cmd.getStderr();
+                        for (int i = 0; i < stderr.size(); i++) {
+                            errText = errText + stderr.get(i) + "\n";
+                        }
+                    }
+                    JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
+                }
+
+            }
+        }
+    }
+
+    private void decryptFile() {
+        JOptionPane.showMessageDialog(this,"Not implemented yet.","Decrypt File",JOptionPane.ERROR_MESSAGE); 
+    }
 
     String enterPassphrase() {
-        return enterPassphrase("Please enter passphrase");
+        return enterPassphrase(false);
     }
     
-    String enterPassphrase(String title) {
-        String              password;
+    String enterPassphrase(boolean symmetric) {
+        String passPhrase1;
+        String passPhrase2;
+
         JPassPhraseDialog   dlg = new JPassPhraseDialog(this, true);
-        dlg.setTitle(title);
-        password = dlg.showDialog();
-        return(password);
+        passPhrase1 = dlg.showDialog();
+        if (passPhrase1 != null && symmetric) {
+            dlg.setTitle("Please repeat passphrase");
+            passPhrase2 = dlg.showDialog();
+            if (passPhrase2 != null) {
+                if (passPhrase1.compareTo(passPhrase2) != 0) {
+                    JOptionPane.showMessageDialog(this,"passphrases do not match.","GPG error",JOptionPane.ERROR_MESSAGE);
+                    passPhrase1 = null;
+                }
+            }
+        }
+        return(passPhrase1);
     }
+   
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -420,8 +555,8 @@ public class Gphelper extends javax.swing.JFrame {
         jTextArea1 = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
-        jMenuEncrypt = new javax.swing.JMenuItem();
-        jMenuDecrypt = new javax.swing.JMenuItem();
+        jMenuEncryptFile = new javax.swing.JMenuItem();
+        jMenuDecryptFile = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuAbout = new javax.swing.JMenuItem();
         jSeparator2 = new javax.swing.JPopupMenu.Separator();
@@ -500,25 +635,25 @@ public class Gphelper extends javax.swing.JFrame {
 
         jMenu1.setText("File");
 
-        jMenuEncrypt.setMnemonic('E');
-        jMenuEncrypt.setText("Encrypt");
-        jMenuEncrypt.setToolTipText("Encrypt text");
-        jMenuEncrypt.addActionListener(new java.awt.event.ActionListener() {
+        jMenuEncryptFile.setMnemonic('E');
+        jMenuEncryptFile.setText("Encrypt File");
+        jMenuEncryptFile.setToolTipText("Encrypt / Sign File");
+        jMenuEncryptFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuEncryptActionPerformed(evt);
+                jMenuEncryptFileActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuEncrypt);
+        jMenu1.add(jMenuEncryptFile);
 
-        jMenuDecrypt.setMnemonic('D');
-        jMenuDecrypt.setText("Decrypt");
-        jMenuDecrypt.setToolTipText("Decrypt text");
-        jMenuDecrypt.addActionListener(new java.awt.event.ActionListener() {
+        jMenuDecryptFile.setMnemonic('D');
+        jMenuDecryptFile.setText("Decrypt File");
+        jMenuDecryptFile.setToolTipText("Decrypt / Verify File");
+        jMenuDecryptFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuDecryptActionPerformed(evt);
+                jMenuDecryptFileActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuDecrypt);
+        jMenu1.add(jMenuDecryptFile);
         jMenu1.add(jSeparator1);
 
         jMenuAbout.setMnemonic('A');
@@ -602,7 +737,7 @@ public class Gphelper extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 517, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonDecrypt)
@@ -613,13 +748,13 @@ public class Gphelper extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuEncryptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuEncryptActionPerformed
-        encrypt();
-    }//GEN-LAST:event_jMenuEncryptActionPerformed
+    private void jMenuEncryptFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuEncryptFileActionPerformed
+        encryptFile();
+    }//GEN-LAST:event_jMenuEncryptFileActionPerformed
 
-    private void jMenuDecryptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuDecryptActionPerformed
-        decrypt();
-    }//GEN-LAST:event_jMenuDecryptActionPerformed
+    private void jMenuDecryptFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuDecryptFileActionPerformed
+        decryptFile();
+    }//GEN-LAST:event_jMenuDecryptFileActionPerformed
 
     private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
         System.exit(0);
@@ -729,9 +864,9 @@ public class Gphelper extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuCopy;
     private javax.swing.JMenuItem jMenuCut;
-    private javax.swing.JMenuItem jMenuDecrypt;
+    private javax.swing.JMenuItem jMenuDecryptFile;
     private javax.swing.JMenuItem jMenuDelete;
-    private javax.swing.JMenuItem jMenuEncrypt;
+    private javax.swing.JMenuItem jMenuEncryptFile;
     private javax.swing.JMenuItem jMenuExit;
     private javax.swing.JMenuItem jMenuPaste;
     private javax.swing.JMenuItem jPopupCopy;
