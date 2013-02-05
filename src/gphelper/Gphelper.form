@@ -188,12 +188,12 @@
           <Group type="102" alignment="1" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="513" max="32767" attributes="0"/>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButtonDecrypt" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButtonEncrypt" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -201,8 +201,9 @@
   <SubComponents>
     <Component class="javax.swing.JButton" name="jButtonEncrypt">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Encrypt"/>
+        <Property name="text" type="java.lang.String" value="Encrypt/Sign"/>
         <Property name="toolTipText" type="java.lang.String" value=" Encrypt text and copy to clipboard"/>
+        <Property name="horizontalTextPosition" type="int" value="0"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonEncryptActionPerformed"/>
@@ -210,8 +211,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="jButtonDecrypt">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Decrypt"/>
+        <Property name="text" type="java.lang.String" value="Decrypt/Verify"/>
         <Property name="toolTipText" type="java.lang.String" value="Decrypt text"/>
+        <Property name="horizontalTextPosition" type="int" value="0"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDecryptActionPerformed"/>

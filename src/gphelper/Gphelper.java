@@ -220,14 +220,60 @@ public class Gphelper extends javax.swing.JFrame {
             JEncryptDialog dlg = new JEncryptDialog(this, true);
             int result = dlg.showDialog();
             if (result == 1) {
+                // save dlg results
+                // if symmetric, call symmetric-encrypt
+                // else call public encrypt 
                 int[]   publicKeysIdx = dlg.getSelectedPublicKeys();
                 int     secretKeysIdx = dlg.getSelectedSecretKey();
                 boolean bSign = dlg.isSigned();
-                boolean bEncrypt = publicKeysIdx.length > 0;
+                boolean bEncrypt = dlg.isEncrypt();
+                boolean bSymmetric = dlg.isSymmetric();
                 SystemCommand cmd = new SystemCommand();
+                /* SYMMETRIC */
+                if (bSymmetric) {
+                    String passPhrase1;
+                    String passPhrase2;
+                    String command = gpgCommand + " --batch --quiet --armor --cipher-algo AES --symmetric";
+                    passPhrase1 = enterPassphrase();
+                    if (passPhrase1 != null) {
+                        passPhrase2 = enterPassphrase("Please repeat passphrase");
+                        if (passPhrase2 != null) {
+                            if (passPhrase1.compareTo(passPhrase2) == 0) {
+                                command = command + " --passphrase " + passPhrase1;
+                                cmd.setCommand(command);
+                                cmd.setStdin(clearText.trim());
+                                bOk = cmd.run();
+                                if (bOk) {
+                                    String txt = "";
+                                    List<String> stdout = cmd.getStdout();
+                                    for (int i = 0; i < stdout.size(); i++) {
+                                        txt = txt + stdout.get(i) + "\n";
+                                    }
+                                    jTextArea1.setText(beforeText + txt + afterText);
+                                    copy();
+                                }
+                            }
+                            else {
+                                bOk = false;
+                                errText = "Passphrases do not match";
+                            }
+                        }
+                        else {
+                            bOk = false;
+                            errText = "Operation canceled.";
+                        }
+                    }
+                    else {
+                        bOk = false;
+                        errText = "Operation canceled.";
+                    }
 
-                if (bEncrypt || bSign) {
-                    String command = gpgCommand + " --batch --quiet --armor --always-trust";
+
+
+                }
+                /* PUBLIC KEY */
+                else if (bEncrypt || bSign) {
+                    String command = gpgCommand + " --batch --quiet --armor --always-trust --force-mdc";
                     if (bEncrypt) {
                         command = command + " --encrypt";
                         for (int i = 0; i < publicKeysIdx.length; i++) {
@@ -343,8 +389,13 @@ public class Gphelper extends javax.swing.JFrame {
     }
 
     String enterPassphrase() {
+        return enterPassphrase("Please enter passphrase");
+    }
+    
+    String enterPassphrase(String title) {
         String              password;
         JPassPhraseDialog   dlg = new JPassPhraseDialog(this, true);
+        dlg.setTitle(title);
         password = dlg.showDialog();
         return(password);
     }
@@ -416,16 +467,18 @@ public class Gphelper extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("GnuPG Helper");
 
-        jButtonEncrypt.setText("Encrypt");
+        jButtonEncrypt.setText("Encrypt/Sign");
         jButtonEncrypt.setToolTipText(" Encrypt text and copy to clipboard");
+        jButtonEncrypt.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonEncrypt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonEncryptActionPerformed(evt);
             }
         });
 
-        jButtonDecrypt.setText("Decrypt");
+        jButtonDecrypt.setText("Decrypt/Verify");
         jButtonDecrypt.setToolTipText("Decrypt text");
+        jButtonDecrypt.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButtonDecrypt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonDecryptActionPerformed(evt);
@@ -549,12 +602,12 @@ public class Gphelper extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonDecrypt)
                     .addComponent(jButtonEncrypt))
-                .addContainerGap())
+                .addGap(18, 18, 18))
         );
 
         pack();
@@ -696,5 +749,4 @@ public class Gphelper extends javax.swing.JFrame {
     private List<String> secretKeys    = new ArrayList<String>();  
     private List<String> publicKeyIds  = new ArrayList<String>();  
     private List<String> secretKeyIds  = new ArrayList<String>(); 
-
 }
