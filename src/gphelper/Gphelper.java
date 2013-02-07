@@ -1,5 +1,7 @@
 package gphelper;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -11,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 public class Gphelper extends javax.swing.JFrame {
@@ -66,6 +69,12 @@ public class Gphelper extends javax.swing.JFrame {
             jMenuEncryptFile.setEnabled(false);
             jMenuDecryptFile.setEnabled(false);
         }
+        
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension size = getSize();
+        int x = (screen.width / 2) - (size.width / 2);
+        int y = (screen.height / 2) - (size.height / 2);
+        setLocation(new Point(x, y));
     }
     
     private void retrievePublicKeys(List<String> list) {
@@ -475,7 +484,7 @@ public class Gphelper extends javax.swing.JFrame {
                             if (!bEncrypt) {
                                 txt = txt + "as " + file.getAbsolutePath();
                                 txt = txt + (bAscii ? ".asc" : ".sig") + " \n";
-                            };
+                            }
                             if (secretKeysIdx != -1) {
                                 txt = txt + " \nby secret key \n";
                                 txt = txt + secretKeyIds.get(secretKeysIdx) + "\t" + secretKeys.get(secretKeysIdx) + " \n";
@@ -508,7 +517,64 @@ public class Gphelper extends javax.swing.JFrame {
     }
 
     private void decryptFile() {
-        JOptionPane.showMessageDialog(this,"Not implemented yet.","Decrypt File",JOptionPane.ERROR_MESSAGE); 
+        String errText          = "";
+        boolean bOk;
+        String  inputFilename   = null;
+        String  outputFilename  = null;
+        File    inputFile       = null;
+        File    outputFile      = null;
+        JFileChooser chooser1    = new JFileChooser();
+        JFileChooser chooser2    = new JFileChooser();
+        
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG files", "gpg", "asc", "sig");
+        chooser1.setFileFilter(filter);
+        chooser1.setDialogTitle("Open encrypted file");
+        int returnVal = chooser1.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            inputFile = chooser1.getSelectedFile();
+            inputFilename = inputFile.getName();
+            String password = enterPassphrase();
+            if (password != null) {
+                String command = gpgCommand + " --quiet --batch --yes --always-trust --passphrase " + password;
+                chooser2.setDialogTitle("Save decrypted file as ...");
+                returnVal = chooser2.showSaveDialog(this);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    outputFile = chooser2.getSelectedFile();
+                    outputFilename = outputFile.getName();
+                    command = command + " --output " + outputFile.getAbsolutePath();
+                }
+                SystemCommand cmd = new SystemCommand();
+                command = command + " --decrypt ";
+                command = command + inputFile.getAbsolutePath();
+                cmd.setCommand(command);
+                bOk = cmd.run();
+                if (bOk) {
+                    String txt = "";
+                    List<String> stdout = cmd.getStdout();
+                    for (int i = 0; i < stdout.size(); i++) {
+                        txt = txt + stdout.get(i) + "\n";
+                    }
+                    txt = txt + "\nFile " + inputFile.getAbsolutePath() + " \n";
+                    txt = txt + "decrypted ";
+                    txt = txt + (outputFile == null ? "OK" : "as " + outputFile.getAbsolutePath()) + ".\n";
+                    List<String> stderr = cmd.getStderr();
+                    for (int i = 0; i < stderr.size(); i++) {
+                        if (i == 0) {
+                            txt = txt + "\n\n";
+                        }
+                        txt = txt + stderr.get(i) + "\n";
+                    }
+                    jTextArea1.setText(txt);
+                }
+                else {
+                    List<String> stderr = cmd.getStderr();
+                    for (int i = 0; i < stderr.size(); i++) {
+                        errText = errText + stderr.get(i) + "\n";
+                    }
+                    JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
     }
 
     String enterPassphrase() {

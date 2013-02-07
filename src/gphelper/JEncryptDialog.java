@@ -1,5 +1,8 @@
 package gphelper;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.List;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
@@ -34,6 +37,12 @@ public class JEncryptDialog extends javax.swing.JDialog {
         jRadioButton3.setEnabled(false);
         jRadioButton4.setVisible(false);
         jRadioButton4.setEnabled(false);
+        
+        Rectangle parentBounds = parent.getBounds();
+        Dimension size = getSize();
+        int x = Math.max(0, parentBounds.x + (parentBounds.width - size.width) / 2);
+        int y = Math.max(0, parentBounds.y + (parentBounds.height - size.height) / 2);
+        setLocation(new Point(x, y));
        
     }
 
@@ -187,6 +196,7 @@ public class JEncryptDialog extends javax.swing.JDialog {
         });
 
         buttonGroup2.add(jRadioButton3);
+        jRadioButton3.setSelected(true);
         jRadioButton3.setText("ASCII output");
         jRadioButton3.setEnabled(false);
         jRadioButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -372,11 +382,11 @@ public class JEncryptDialog extends javax.swing.JDialog {
     public void setFileEncryption(String fileName) {
         jRadioButton3.setVisible(true);
         jRadioButton3.setEnabled(true);
+        jRadioButton3.setSelected(true);
         jRadioButton4.setVisible(true);
         jRadioButton4.setEnabled(true);
-        jRadioButton4.setSelected(true);
         setTitle("Encrypt file " + fileName);
-        Ascii = false;
+        Ascii = true;
         
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
