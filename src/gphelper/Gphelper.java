@@ -355,7 +355,7 @@ public class Gphelper extends javax.swing.JFrame {
                     String txt = "";
                     List<String> stdout = cmd.getStdout();
                     for (int i = 0; i < stdout.size(); i++) {
-                        txt = txt + stdout.get(i);// + "\n";
+                        txt = txt + stdout.get(i) + "\n";
                     }
                     jTextArea1.setText(beforeText + txt + afterText);
                     List<String> stderr = cmd.getStderr();
