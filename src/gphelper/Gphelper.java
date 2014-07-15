@@ -12,7 +12,9 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JFileChooser;
@@ -53,13 +55,6 @@ public class Gphelper extends javax.swing.JFrame {
                 retrieveSecretKeys(stdout);
             }
         }
-        if (bOk) {
-            if ((publicKeyIds.size() != publicKeys.size()) ||
-                 secretKeyIds.size() != secretKeys.size()) {
-                errText = "Internal error.\nInvalid programmer.";
-                bOk = false;
-            }
-        }
         if (bOk == false) {
             if (errText.length() == 0) {
                 List<String> stderr = cmd.getStderr();
@@ -84,6 +79,7 @@ public class Gphelper extends javax.swing.JFrame {
     private void retrievePublicKeys(List<String> list) {
         String line;
         boolean bNewKey = false;
+        String  keyID   = null;
         for (String list1 : list) {
             line = list1;
             if (line.startsWith("pub")) {
@@ -91,7 +87,7 @@ public class Gphelper extends javax.swing.JFrame {
                 Matcher m = p.matcher(line);
                 if (m.matches()) {
                     String str = m.group(1);
-                    publicKeyIds.add(str);
+                    keyID = str;
                 }
                 bNewKey = true;
             }
@@ -101,7 +97,7 @@ public class Gphelper extends javax.swing.JFrame {
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         String str = m.group (1);
-                        publicKeys.add(str);
+                        publicKeysMap.put(keyID, str);
                     }
                 }
                 bNewKey = false;
@@ -112,6 +108,7 @@ public class Gphelper extends javax.swing.JFrame {
     private void retrieveSecretKeys(List<String> list) {
         String line;
         boolean bNewKey = false;
+        String  keyID   = null;
         for (String list1 : list) {
             line = list1;
             if (line.startsWith("sec")) {
@@ -119,7 +116,7 @@ public class Gphelper extends javax.swing.JFrame {
                 Matcher m = p.matcher(line);
                 if (m.matches()) {
                     String str = m.group(1);
-                    secretKeyIds.add(str);
+                    keyID = str;
                 }
                 bNewKey = true;
             }
@@ -129,7 +126,7 @@ public class Gphelper extends javax.swing.JFrame {
                     Matcher m = p.matcher(line);
                     if (m.matches()) {
                         String str = m.group (1);
-                        secretKeys.add(str);
+                        secretKeysMap.put(keyID, str);
                     }
                 }
                 bNewKey = false;
@@ -190,28 +187,20 @@ public class Gphelper extends javax.swing.JFrame {
         }
     }
     
-    public List<String> getPublicKeys() {
-        return publicKeys;
-    }
-
-    public List<String> getSecretKeys() {
-        return secretKeys;
-    }
-
-    public List<String> getPublicKeyIds() {
-        return publicKeyIds;
-    }
-
-    public List<String> getSecretKeyIds() {
-        return secretKeyIds;
-    }
-
     public String getGpgText() {
         return jTextArea1.getText();
     }
 
     public void setGpgText(String gpgText) {
         jTextArea1.setText(gpgText);
+    }
+
+    public Map<String, String> getPublicKeysMap() {
+        return publicKeysMap;
+    }
+
+    public Map<String, String> getSecretKeysMap() {
+        return secretKeysMap;
     }
     
     /* 
@@ -237,8 +226,8 @@ public class Gphelper extends javax.swing.JFrame {
             JEncryptDialog dlg = new JEncryptDialog(this, true);
             int result = dlg.showDialog();
             if (result == 1) {
-                int[]   publicKeysIdx = dlg.getSelectedPublicKeys();
-                int     secretKeysIdx = dlg.getSelectedSecretKey();
+                String  secretKeyId = dlg.getSelectedSecretKey();
+                List<String> publicKeyIds = dlg.getSelectedPublicKeys();
                 boolean bSign = dlg.isSigned();
                 boolean bEncrypt = dlg.isEncrypt();
                 boolean bSymmetric = dlg.isSymmetric();
@@ -271,17 +260,16 @@ public class Gphelper extends javax.swing.JFrame {
                     String command = gpgCommand + " --batch --quiet --armor --always-trust --force-mdc";
                     if (bEncrypt) {
                         command = command + " --encrypt";
-                        for (int i = 0; i < publicKeysIdx.length; i++) {
-                            int idx = publicKeysIdx[i];
-                            command = command + " --recipient " + publicKeyIds.get(idx);
+                        for (String publicKeyId: publicKeyIds) {
+                            command = command + " --recipient " + publicKeyId;
                         }
                     }
                     if (bSign) {
                         String password = enterPassphrase();   
                         if (password != null) {
                             command = bEncrypt ? command + " --sign" : command + " --clearsign";
-                            if (secretKeysIdx != -1) {
-                                command = command + " --default-key " + secretKeyIds.get(secretKeysIdx);
+                            if (secretKeyId != null) {
+                                command = command + " --default-key " + secretKeyId;
                             }
                             command = command + " --passphrase " + password;
                         }
@@ -400,8 +388,8 @@ public class Gphelper extends javax.swing.JFrame {
             dlg.setFileEncryption(clearFilename);
             int result = dlg.showDialog();
             if (result == 1) {
-                int[]   publicKeysIdx = dlg.getSelectedPublicKeys();
-                int     secretKeysIdx = dlg.getSelectedSecretKey();
+                String  secretKeyId = dlg.getSelectedSecretKey();
+                List<String> publicKeyIds = dlg.getSelectedPublicKeys();
                 boolean bSign = dlg.isSigned();
                 boolean bEncrypt = dlg.isEncrypt();
                 boolean bSymmetric = dlg.isSymmetric();
@@ -445,17 +433,16 @@ public class Gphelper extends javax.swing.JFrame {
                     command = command + " --always-trust --force-mdc";
                     if (bEncrypt) {
                         command = command + " --encrypt";
-                        for (int i = 0; i < publicKeysIdx.length; i++) {
-                            int idx = publicKeysIdx[i];
-                            command = command + " --recipient " + publicKeyIds.get(idx);
+                        for (String publicKeyId: publicKeyIds) {
+                            command = command + " --recipient " + publicKeyId;
                         }
                     }
                     if (bSign) {
                         String password = enterPassphrase();   
                         if (password != null) {
                             command = bEncrypt ? command + " --sign" : command + " --detach-sign";
-                            if (secretKeysIdx != -1) {
-                                command = command + " --default-key " + secretKeyIds.get(secretKeysIdx);
+                            if (secretKeyId != null) {
+                                command = command + " --default-key " + secretKeyId;
                             }
                             command = command + " --passphrase " + password;
                         }
@@ -480,9 +467,8 @@ public class Gphelper extends javax.swing.JFrame {
                             txt = txt + "encrypted as " + file.getAbsolutePath(); 
                             txt = txt + (bAscii ? ".asc" : ".gpg") + " \n";
                             txt = txt + "with public key(s) \n";
-                            for (int i = 0; i < publicKeysIdx.length; i++) {
-                                int idx = publicKeysIdx[i];
-                                txt = txt + publicKeyIds.get(idx) + "\t" + publicKeys.get(idx) + " \n";
+                            for (String publicKeyId: publicKeyIds) {
+                                txt = txt + publicKeyId + "\t" + publicKeysMap.get(publicKeyId) + " \n";
                             }
                         }
                         if (bSign) {
@@ -491,9 +477,9 @@ public class Gphelper extends javax.swing.JFrame {
                                 txt = txt + "as " + file.getAbsolutePath();
                                 txt = txt + (bAscii ? ".asc" : ".sig") + " \n";
                             }
-                            if (secretKeysIdx != -1) {
+                            if (secretKeyId != null) {
                                 txt = txt + " \nby secret key \n";
-                                txt = txt + secretKeyIds.get(secretKeysIdx) + "\t" + secretKeys.get(secretKeysIdx) + " \n";
+                                txt = txt + secretKeyId + "\t" + secretKeysMap.get(secretKeyId) + " \n";
                             }
                             else {
                                 txt = txt + " \nby default secret key \n";
@@ -952,8 +938,6 @@ public class Gphelper extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
     private String gpgCommand;
-    final private List<String> publicKeys    = new ArrayList<String>();  
-    final private List<String> secretKeys    = new ArrayList<String>();  
-    final private List<String> publicKeyIds  = new ArrayList<String>();  
-    final private List<String> secretKeyIds  = new ArrayList<String>(); 
+    final private Map<String, String> publicKeysMap = new HashMap<String, String>();
+    final private Map<String, String> secretKeysMap = new HashMap<String, String>();
 }
