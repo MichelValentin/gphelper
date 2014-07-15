@@ -6,13 +6,17 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.font.TextAttribute;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JAboutDialog extends javax.swing.JDialog {
 
@@ -145,7 +149,7 @@ public class JAboutDialog extends javax.swing.JDialog {
                         java.net.URI uri = new java.net.URI(url); 
                         desktop.browse(uri); 
                     } 
-                    catch (Exception e)  { 
+                    catch (IOException | URISyntaxException e)  { 
                     } 
                     finally {
                         jLabelUrl.setEnabled(false);
@@ -170,16 +174,18 @@ private String getVersionfinal (Class classe) {
 			if (index != -1) {
 				String jarPath = path.substring(0, index + jarExt.length());
 				File file = new File(jarPath);
-				JarFile jarFile = new JarFile(new File(new URI(jarPath)));
-				JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
-				version = sdf.format(new Date(entry.getTime()));
-				jarFile.close();
+                            try (JarFile jarFile = new JarFile(new File(new URI(jarPath)))) {
+                                JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
+                                version = sdf.format(new Date(entry.getTime()));
+                            } catch (URISyntaxException ex) {
+                                Logger.getLogger(JAboutDialog.class.getName()).log(Level.SEVERE, null, ex);
+                            }
 			} else {
 				File file = new File(path);
 				version = sdf.format(new Date(file.lastModified()));
 			}
 		}
-	} catch (Exception e) { }
+	} catch (IOException e) { }
     
 	return version;
 }
