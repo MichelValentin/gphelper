@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -19,7 +20,8 @@ public class JEncryptDialog extends javax.swing.JDialog {
         this.selectedSecretKey = null;
         this.Signed = false;
         initComponents();
-        Map<String, String> publicKeysMap = parent.getPublicKeysMap();
+        Map<String, String> publicKeysMap = new TreeMap<String, String>(parent.getPublicKeysMap()); 
+//        Map<String, String> publicKeysMap = parent.getPublicKeysMap();
         Map<String, String> secretKeysMap = parent.getSecretKeysMap();
         DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
         for(String key : publicKeysMap.keySet()) {
