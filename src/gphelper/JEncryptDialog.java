@@ -3,7 +3,9 @@ package gphelper;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -13,20 +15,22 @@ public class JEncryptDialog extends javax.swing.JDialog {
 
     public JEncryptDialog(Gphelper parent, boolean modal) {
         super(parent, modal);
+        this.selectedPublicKeys = new ArrayList<String>();
+        this.selectedSecretKey = null;
         this.Signed = false;
         initComponents();
-        List<String>  publicKeyIDs = parent.getPublicKeyIds();
-        List<String>  publicKeys   = parent.getPublicKeys();
-        List<String>  secretKeyIDs = parent.getSecretKeyIds();
-        List<String>  secretKeys   = parent.getSecretKeys();
+        Map<String, String> publicKeysMap = parent.getPublicKeysMap();
+        Map<String, String> secretKeysMap = parent.getSecretKeysMap();
         DefaultTableModel dm = (DefaultTableModel) jTable1.getModel();
-        for (int i = 0; i < publicKeys.size(); i++) {
-            String[] row = {publicKeyIDs.get(i), publicKeys.get(i)};
+        for(String key : publicKeysMap.keySet()) {
+            String value = publicKeysMap.get(key);
+            String[] row = {key, value};
             dm.addRow(row);
         }
         dm = (DefaultTableModel) jTable2.getModel();
-        for (int i = 0; i < secretKeys.size(); i++) {
-            String[] row = {secretKeyIDs.get(i), secretKeys.get(i)};
+        for(String key : secretKeysMap.keySet()) {
+            String value = secretKeysMap.get(key);
+            String[] row = {key, value};
             dm.addRow(row);
         }
         SelectionListener listener = new SelectionListener(jTable1);
@@ -103,6 +107,7 @@ public class JEncryptDialog extends javax.swing.JDialog {
             }
         });
 
+        jTable1.setAutoCreateRowSorter(true);
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -129,10 +134,12 @@ public class JEncryptDialog extends javax.swing.JDialog {
         jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
         jTable1.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jTable1);
-        jTable1.getColumnModel().getColumn(0).setMinWidth(80);
-        jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
-        jTable1.getColumnModel().getColumn(0).setMaxWidth(100);
-        jTable1.getColumnModel().getColumn(1).setPreferredWidth(80);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setMinWidth(80);
+            jTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
+            jTable1.getColumnModel().getColumn(0).setMaxWidth(100);
+            jTable1.getColumnModel().getColumn(1).setPreferredWidth(80);
+        }
 
         jSignCheckBox.setText("Sign");
         jSignCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -171,9 +178,11 @@ public class JEncryptDialog extends javax.swing.JDialog {
         jTable2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jTable2.getTableHeader().setReorderingAllowed(false);
         jScrollPane2.setViewportView(jTable2);
-        jTable2.getColumnModel().getColumn(0).setMinWidth(80);
-        jTable2.getColumnModel().getColumn(0).setPreferredWidth(100);
-        jTable2.getColumnModel().getColumn(0).setMaxWidth(100);
+        if (jTable2.getColumnModel().getColumnCount() > 0) {
+            jTable2.getColumnModel().getColumn(0).setMinWidth(80);
+            jTable2.getColumnModel().getColumn(0).setPreferredWidth(100);
+            jTable2.getColumnModel().getColumn(0).setMaxWidth(100);
+        }
 
         jButtonOk.setText("OK");
         jButtonOk.setMaximumSize(new java.awt.Dimension(75, 30));
@@ -290,8 +299,15 @@ public class JEncryptDialog extends javax.swing.JDialog {
     }
     private void jButtonOkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOkActionPerformed
         result = 1;
-        selectedPublicKeys = jTable1.getSelectedRows();
-        selectedSecretKey  = jTable2.getSelectedRow();
+        int[] selectedPKs = jTable1.getSelectedRows();
+        for (int idx : selectedPKs)  {
+            String str = (String)jTable1.getValueAt(idx, 0);
+            selectedPublicKeys.add(str);
+        }
+        int idx = jTable2.getSelectedRow();
+        if (idx >= 0) {
+            selectedSecretKey = (String)jTable2.getValueAt(idx, 0);
+        }
         setVisible(false);
         dispose();
     }//GEN-LAST:event_jButtonOkActionPerformed
@@ -355,11 +371,11 @@ public class JEncryptDialog extends javax.swing.JDialog {
         return result;
     }
 
-    public int[] getSelectedPublicKeys() {
+    public List<String>  getSelectedPublicKeys() {
         return selectedPublicKeys;
     }
 
-    public int getSelectedSecretKey() {
+    public String getSelectedSecretKey() {
         return selectedSecretKey;
     }
 
@@ -407,13 +423,13 @@ public class JEncryptDialog extends javax.swing.JDialog {
     private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     // End of variables declaration//GEN-END:variables
-    private int     result  = 0;
-    private boolean Symmetric;
-    private boolean Encrypt;
-    private boolean Signed;
-    private boolean Ascii;
-    private int[]   selectedPublicKeys;
-    private int     selectedSecretKey;
+    private int         result  = 0;
+    private boolean     Symmetric;
+    private boolean     Encrypt;
+    private boolean     Signed;
+    private boolean     Ascii;
+    private List<String> selectedPublicKeys;  
+    private String      selectedSecretKey;
     
     
     class SelectionListener implements ListSelectionListener {
