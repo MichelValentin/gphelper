@@ -1,12 +1,16 @@
 package gphelper;
 
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -59,8 +63,8 @@ public class Gphelper extends javax.swing.JFrame {
         if (bOk == false) {
             if (errText.length() == 0) {
                 List<String> stderr = cmd.getStderr();
-                for (int i = 0; i < stderr.size(); i++) {
-                    errText = errText + stderr.get(i) + "\n";
+                for (String stderr1 : stderr) {
+                    errText = errText + stderr1 + "\n";
                 }
             }
             JOptionPane.showMessageDialog(null,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
@@ -80,8 +84,8 @@ public class Gphelper extends javax.swing.JFrame {
     private void retrievePublicKeys(List<String> list) {
         String line;
         boolean bNewKey = false;
-        for (int i = 0; i < list.size(); i++) {
-            line = list.get(i);
+        for (String list1 : list) {
+            line = list1;
             if (line.startsWith("pub")) {
                 Pattern p = Pattern.compile("^.*/([^\\s]+).*");
                 Matcher m = p.matcher(line);
@@ -108,8 +112,8 @@ public class Gphelper extends javax.swing.JFrame {
     private void retrieveSecretKeys(List<String> list) {
         String line;
         boolean bNewKey = false;
-        for (int i = 0; i < list.size(); i++) {
-            line = list.get(i);
+        for (String list1 : list) {
+            line = list1;
             if (line.startsWith("sec")) {
                 Pattern p = Pattern.compile("^.*/([^\\s]+).*");
                 Matcher m = p.matcher(line);
@@ -147,9 +151,10 @@ public class Gphelper extends javax.swing.JFrame {
             text = jTextArea1.getSelectedText();
         }
         try {
-            StringSelection ss = new StringSelection(text);
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss,null);
-        } catch( IllegalStateException e1) {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection stringSelection = new StringSelection(text);
+            clipboard.setContents(stringSelection, stringSelection);  
+        } catch( HeadlessException e1) {
             java.util.logging.Logger.getLogger(Gphelper.class.getName()).log(java.util.logging.Level.SEVERE, null, e1);
         } 
     }
@@ -163,10 +168,11 @@ public class Gphelper extends javax.swing.JFrame {
                 jTextArea1.setText(txt);
             } 
         } 
-        catch(Exception e1) {
+        catch(UnsupportedFlavorException e1) {
+            java.util.logging.Logger.getLogger(Gphelper.class.getName()).log(java.util.logging.Level.SEVERE, null, e1);
+        } catch (IOException e1) {
             java.util.logging.Logger.getLogger(Gphelper.class.getName()).log(java.util.logging.Level.SEVERE, null, e1);
         } 
-        
     }
 
     private void delete() {
@@ -249,8 +255,8 @@ public class Gphelper extends javax.swing.JFrame {
                     if (bOk) {
                         String txt = "";
                         List<String> stdout = cmd.getStdout();
-                        for (int i = 0; i < stdout.size(); i++) {
-                            txt = txt + stdout.get(i) + "\n";
+                        for (String stdout1 : stdout) {
+                            txt = txt + stdout1 + "\n";
                         }
                         jTextArea1.setText(beforeText + txt + afterText);
                         copy();
@@ -292,8 +298,8 @@ public class Gphelper extends javax.swing.JFrame {
                     if (bOk) {
                         String txt = "";
                         List<String> stdout = cmd.getStdout();
-                        for (int i = 0; i < stdout.size(); i++) {
-                            txt = txt + stdout.get(i) + "\n";
+                        for (String stdout1 : stdout) {
+                            txt = txt + stdout1 + "\n";
                         }
                         jTextArea1.setText(beforeText + txt + afterText);
                         copy();
@@ -307,8 +313,8 @@ public class Gphelper extends javax.swing.JFrame {
                 if (bOk == false) {
                     if (errText.length() == 0) {
                         List<String> stderr = cmd.getStderr();
-                        for (int i = 0; i < stderr.size(); i++) {
-                            errText = errText + stderr.get(i) + "\n";
+                        for (String stderr1 : stderr) {
+                            errText = errText + stderr1 + "\n";
                         }
                     }
                     JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
@@ -354,8 +360,8 @@ public class Gphelper extends javax.swing.JFrame {
                 if (bOk) {
                     String txt = "";
                     List<String> stdout = cmd.getStdout();
-                    for (int i = 0; i < stdout.size(); i++) {
-                        txt = txt + stdout.get(i) + "\n";
+                    for (String stdout1 : stdout) {
+                        txt = txt + stdout1 + "\n";
                     }
                     jTextArea1.setText(beforeText + txt + afterText);
                     List<String> stderr = cmd.getStderr();
@@ -369,8 +375,8 @@ public class Gphelper extends javax.swing.JFrame {
                 else {
                     String errText = "";
                     List<String> stderr = cmd.getStderr();
-                    for (int i = 0; i < stderr.size(); i++) {
-                        errText = errText + stderr.get(i) + "\n";
+                    for (String stderr1 : stderr) {
+                        errText = errText + stderr1 + "\n";
                     }
                     JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
                 }
@@ -419,8 +425,8 @@ public class Gphelper extends javax.swing.JFrame {
                         if (bOk) {
                             String txt = "";
                             List<String> stdout = cmd.getStdout();
-                            for (int i = 0; i < stdout.size(); i++) {
-                                txt = txt + stdout.get(i) + "\n";
+                            for (String stdout1 : stdout) {
+                                txt = txt + stdout1 + "\n";
                             }
                             txt = txt + "file " + file.getAbsolutePath() + " \nencrypted as " + file.getAbsolutePath(); 
                             txt = txt + (bAscii ? ".asc" : ".gpg");
@@ -466,8 +472,8 @@ public class Gphelper extends javax.swing.JFrame {
                     if (bOk) {
                         String txt = "";
                         List<String> stdout = cmd.getStdout();
-                        for (int i = 0; i < stdout.size(); i++) {
-                            txt = txt + stdout.get(i) + "\n";
+                        for (String stdout1 : stdout) {
+                            txt = txt + stdout1 + "\n";
                         }
                         txt = txt + "file " + file.getAbsolutePath() + " \n";
                         if (bEncrypt) {
@@ -505,8 +511,8 @@ public class Gphelper extends javax.swing.JFrame {
                 if (bOk == false) {
                     if (errText.length() == 0) {
                         List<String> stderr = cmd.getStderr();
-                        for (int i = 0; i < stderr.size(); i++) {
-                            errText = errText + stderr.get(i) + "\n";
+                        for (String stderr1 : stderr) {
+                            errText = errText + stderr1 + "\n";
                         }
                     }
                     JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
@@ -551,8 +557,8 @@ public class Gphelper extends javax.swing.JFrame {
                 if (bOk) {
                     String txt = "";
                     List<String> stdout = cmd.getStdout();
-                    for (int i = 0; i < stdout.size(); i++) {
-                        txt = txt + stdout.get(i) + "\n";
+                    for (String stdout1 : stdout) {
+                        txt = txt + stdout1 + "\n";
                     }
                     txt = txt + "\nFile " + inputFile.getAbsolutePath() + " \n";
                     txt = txt + "decrypted ";
@@ -568,8 +574,8 @@ public class Gphelper extends javax.swing.JFrame {
                 }
                 else {
                     List<String> stderr = cmd.getStderr();
-                    for (int i = 0; i < stderr.size(); i++) {
-                        errText = errText + stderr.get(i) + "\n";
+                    for (String stderr1 : stderr) {
+                        errText = errText + stderr1 + "\n";
                     }
                     JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
                 }
@@ -946,8 +952,8 @@ public class Gphelper extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
     private String gpgCommand;
-    private List<String> publicKeys    = new ArrayList<String>();  
-    private List<String> secretKeys    = new ArrayList<String>();  
-    private List<String> publicKeyIds  = new ArrayList<String>();  
-    private List<String> secretKeyIds  = new ArrayList<String>(); 
+    final private List<String> publicKeys    = new ArrayList<String>();  
+    final private List<String> secretKeys    = new ArrayList<String>();  
+    final private List<String> publicKeyIds  = new ArrayList<String>();  
+    final private List<String> secretKeyIds  = new ArrayList<String>(); 
 }
