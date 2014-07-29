@@ -407,7 +407,7 @@ public class Gphelper extends javax.swing.JFrame {
                 if (bAscii) {
                     command = command + " --armor";
                 }
-                    command = command + " --cipher-algo AES";
+                command = command + " --cipher-algo AES";
                 /* SYMMETRIC */
                 if (bSymmetric) {
                     passPhrase = enterPassphrase(true);
@@ -450,7 +450,8 @@ public class Gphelper extends javax.swing.JFrame {
                     cmd.setCommand(command);
                     final JDialog loading = new JDialog(this);
                     JPanel p1 = new JPanel(new BorderLayout());
-                    p1.add(new JLabel("Please wait..."), BorderLayout.CENTER);
+                    String msg = "Encrypting file " + file.getAbsolutePath() + " ...";
+                    p1.add(new JLabel(msg), BorderLayout.CENTER);
                     loading.setUndecorated(true);
                     loading.getContentPane().add(p1);
                     loading.pack();
@@ -491,7 +492,7 @@ public class Gphelper extends javax.swing.JFrame {
                         txt = txt + " \nwith a symmetric key\n";
                         jTextArea1.setText(txt);
                     }
-                /* PUBLIC KEY */
+                    /* PUBLIC KEY */
                     else if (bEncrypt || bSign) {
                         String txt = "";
                         List<String> stdout = cmd.getStdout();
@@ -580,7 +581,8 @@ public class Gphelper extends javax.swing.JFrame {
                 cmd.setCommand(command);
                 final JDialog loading = new JDialog(this);
                 JPanel p1 = new JPanel(new BorderLayout());
-                p1.add(new JLabel("Please wait..."), BorderLayout.CENTER);
+                String msg = "Decrypting file " + inputFile.getAbsolutePath() + " ...";
+                p1.add(new JLabel(msg), BorderLayout.CENTER);
                 loading.setUndecorated(true);
                 loading.getContentPane().add(p1);
                 loading.pack();
@@ -1008,3 +1010,4 @@ public class Gphelper extends javax.swing.JFrame {
     final private Map<String, String> publicKeysMap = new HashMap<String, String>();
     final private Map<String, String> secretKeysMap = new HashMap<String, String>();
 }
+
