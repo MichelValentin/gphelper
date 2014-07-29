@@ -3,6 +3,7 @@ package gphelper;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -12,6 +13,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -448,16 +451,28 @@ public class Gphelper extends javax.swing.JFrame {
                 if (bOk) {
                     command = command + " " + file.getAbsolutePath() + " ";
                     cmd.setCommand(command);
-                    final JDialog loading = new JDialog(this);
-                    JPanel p1 = new JPanel(new BorderLayout());
                     String msg = "Encrypting file " + file.getAbsolutePath() + " ...";
-                    p1.add(new JLabel(msg), BorderLayout.CENTER);
-                    loading.setUndecorated(true);
-                    loading.getContentPane().add(p1);
-                    loading.pack();
-                    loading.setLocationRelativeTo(this);
-                    loading.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-                    loading.setModal(true);
+                    jTextArea1.setText(msg);
+                    final JDialog waiting = new JDialog(this);
+                    JPanel p1 = new JPanel(new BorderLayout());
+                    Image       image = null;
+                    ImageIcon   icon;
+                    try {
+                        URL url = getClass().getResource("spiffygif_30x30.gif");
+                        java.awt.Toolkit toolkit = java.awt.Toolkit.getDefaultToolkit();
+                        image = toolkit.getImage(url);
+                    }
+                    catch (Exception e) {
+                    }
+                    icon = new ImageIcon(image);
+                    JLabel jLabel1 = new JLabel(icon);
+                    p1.add(jLabel1, BorderLayout.CENTER);
+                    waiting.setUndecorated(true);
+                    waiting.getContentPane().add(p1);
+                    waiting.pack();
+                    waiting.setLocationRelativeTo(this);
+                    waiting.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                    waiting.setModal(true);
                     SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                         @Override
                         protected Boolean doInBackground() throws InterruptedException {
@@ -466,11 +481,11 @@ public class Gphelper extends javax.swing.JFrame {
                         }
                         @Override
                         protected void done() {
-                            loading.dispose();
+                            waiting.dispose();
                         }
                     };
                     worker.execute();
-                    loading.setVisible(true);
+                    waiting.setVisible(true);
                     try {
                         bOk = worker.get();
                     } catch (InterruptedException ex) {
@@ -579,16 +594,28 @@ public class Gphelper extends javax.swing.JFrame {
                 command = command + " --decrypt ";
                 command = command + inputFile.getAbsolutePath();
                 cmd.setCommand(command);
-                final JDialog loading = new JDialog(this);
-                JPanel p1 = new JPanel(new BorderLayout());
                 String msg = "Decrypting file " + inputFile.getAbsolutePath() + " ...";
-                p1.add(new JLabel(msg), BorderLayout.CENTER);
-                loading.setUndecorated(true);
-                loading.getContentPane().add(p1);
-                loading.pack();
-                loading.setLocationRelativeTo(this);
-                loading.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-                loading.setModal(true);
+                jTextArea1.setText(msg);
+                final JDialog waiting = new JDialog(this);
+                JPanel p1 = new JPanel(new BorderLayout());
+                Image       image = null;
+                ImageIcon   icon;
+                try {
+                    URL url = getClass().getResource("spiffygif_30x30.gif");
+                    java.awt.Toolkit toolkit = java.awt.Toolkit.getDefaultToolkit();
+                    image = toolkit.getImage(url);
+                }
+                catch (Exception e) {
+                }
+                icon = new ImageIcon(image);
+                JLabel jLabel1 = new JLabel(icon);
+                p1.add(jLabel1, BorderLayout.CENTER);
+                waiting.setUndecorated(true);
+                waiting.getContentPane().add(p1);
+                waiting.pack();
+                waiting.setLocationRelativeTo(this);
+                waiting.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                waiting.setModal(true);
                 SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                     @Override
                     protected Boolean doInBackground() throws InterruptedException {
@@ -597,11 +624,11 @@ public class Gphelper extends javax.swing.JFrame {
                     }
                     @Override
                     protected void done() {
-                        loading.dispose();
+                        waiting.dispose();
                     }
                 };
                 worker.execute();
-                loading.setVisible(true);
+                waiting.setVisible(true);
                 try {
                     bOk = worker.get();
                 } catch (InterruptedException ex) {
