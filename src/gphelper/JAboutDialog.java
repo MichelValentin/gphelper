@@ -149,7 +149,11 @@ public class JAboutDialog extends javax.swing.JDialog {
                         java.net.URI uri = new java.net.URI(url); 
                         desktop.browse(uri); 
                     } 
-                    catch (IOException | URISyntaxException e)  { 
+                    catch (URISyntaxException e)  { 
+                        Logger.getLogger(JAboutDialog.class.getName()).log(Level.SEVERE, null, e);
+                    } 
+                    catch (IOException e) {
+                        Logger.getLogger(JAboutDialog.class.getName()).log(Level.SEVERE, null, e);
                     } 
                     finally {
                         jLabelUrl.setEnabled(false);
@@ -174,18 +178,19 @@ private String getVersionfinal (Class classe) {
 			if (index != -1) {
 				String jarPath = path.substring(0, index + jarExt.length());
 				File file = new File(jarPath);
-                            try (JarFile jarFile = new JarFile(new File(new URI(jarPath)))) {
-                                JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
-                                version = sdf.format(new Date(entry.getTime()));
-                            } catch (URISyntaxException ex) {
-                                Logger.getLogger(JAboutDialog.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                            JarFile jarFile = new JarFile(new File(new URI(jarPath)));
+                            JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
+                            version = sdf.format(new Date(entry.getTime()));
 			} else {
 				File file = new File(path);
 				version = sdf.format(new Date(file.lastModified()));
 			}
 		}
-	} catch (IOException e) { }
+	} catch (URISyntaxException ex)  {
+            Logger.getLogger(JAboutDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JAboutDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
     
 	return version;
 }

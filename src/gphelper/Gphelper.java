@@ -1,5 +1,6 @@
 package gphelper;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
@@ -14,10 +15,17 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
@@ -376,6 +384,7 @@ public class Gphelper extends javax.swing.JFrame {
         boolean bOk         = true;
         String clearFilename;
         JFileChooser chooser = new JFileChooser();
+        final SystemCommand cmd = new SystemCommand();
         
         //FileNameExtensionFilter filter = new FileNameExtensionFilter("All files", "*");
         //chooser.setFileFilter(filter);
@@ -393,9 +402,8 @@ public class Gphelper extends javax.swing.JFrame {
                 boolean bEncrypt = dlg.isEncrypt();
                 boolean bSymmetric = dlg.isSymmetric();
                 boolean bAscii = dlg.isAscii();
-                SystemCommand cmd = new SystemCommand();
                 String passPhrase;
-                String command = gpgCommand + " --batch --quiet --yes";
+                String command = gpgCommand + " --batch --quiet --yes --openpgp";
                 if (bAscii) {
                     command = command + " --armor";
                 }
@@ -405,22 +413,7 @@ public class Gphelper extends javax.swing.JFrame {
                     passPhrase = enterPassphrase(true);
                     if (passPhrase != null) {
                         command = command + " --passphrase " + passPhrase;
-                        command = command + " --symmetric ";
-                        command = command + file.getAbsolutePath();
-                        cmd.setCommand(command);
-                        bOk = cmd.run();
-                        if (bOk) {
-                            String txt = "";
-                            List<String> stdout = cmd.getStdout();
-                            for (String stdout1 : stdout) {
-                                txt = txt + stdout1 + "\n";
-                            }
-                            txt = txt + "file " + file.getAbsolutePath() + " \nencrypted as " + file.getAbsolutePath(); 
-                            txt = txt + (bAscii ? ".asc" : ".gpg");
-                            txt = txt + " \nwith a symmetric key\n";
-                            jTextArea1.setText(txt);
-
-                        }
+                        command = command + " --symmetric";
                     }
                     else {
                         bOk = false;
@@ -450,12 +443,56 @@ public class Gphelper extends javax.swing.JFrame {
                             errText = "Operation canceled.";
                         }
                     }
-                    if (bOk) {
-                       command = command + " " + file.getAbsolutePath();
-                       cmd.setCommand(command);
-                        bOk = cmd.run();
+                }
+                // do
+                if (bOk) {
+                    command = command + " " + file.getAbsolutePath() + " ";
+                    cmd.setCommand(command);
+                    final JDialog loading = new JDialog(this);
+                    JPanel p1 = new JPanel(new BorderLayout());
+                    p1.add(new JLabel("Please wait..."), BorderLayout.CENTER);
+                    loading.setUndecorated(true);
+                    loading.getContentPane().add(p1);
+                    loading.pack();
+                    loading.setLocationRelativeTo(this);
+                    loading.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                    loading.setModal(true);
+                    SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                        @Override
+                        protected Boolean doInBackground() throws InterruptedException {
+                            Boolean b = cmd.run();
+                            return b;
+                        }
+                        @Override
+                        protected void done() {
+                            loading.dispose();
+                        }
+                    };
+                    worker.execute();
+                    loading.setVisible(true);
+                    try {
+                        bOk = worker.get();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Gphelper.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ExecutionException ex) {
+                        Logger.getLogger(Gphelper.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    if (bOk) {
+                }
+                if (bOk) {
+                    /* SYMMETRIC */
+                    if (bSymmetric) {
+                        String txt = "";
+                        List<String> stdout = cmd.getStdout();
+                        for (String stdout1 : stdout) {
+                            txt = txt + stdout1 + "\n";
+                        }
+                        txt = txt + "file " + file.getAbsolutePath() + " \nencrypted as " + file.getAbsolutePath(); 
+                        txt = txt + (bAscii ? ".asc" : ".gpg");
+                        txt = txt + " \nwith a symmetric key\n";
+                        jTextArea1.setText(txt);
+                    }
+                /* PUBLIC KEY */
+                    else if (bEncrypt || bSign) {
                         String txt = "";
                         List<String> stdout = cmd.getStdout();
                         for (String stdout1 : stdout) {
@@ -484,32 +521,35 @@ public class Gphelper extends javax.swing.JFrame {
                                 txt = txt + " \nby default secret key \n";
                             }
                         }
-
                         jTextArea1.setText(txt);
                     }
                 }
-                else {
-                    bOk = false;
-                    errText = "No recipient have been selected.";
-                }
-
-                if (bOk == false) {
-                    if (errText.length() == 0) {
-                        List<String> stderr = cmd.getStderr();
-                        for (String stderr1 : stderr) {
-                            errText = errText + stderr1 + "\n";
-                        }
-                    }
-                    JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
-                }
-
             }
+            else { // result != 1
+                bOk = false;
+                errText = "No recipient have been selected.";
+            }
+
+            if (bOk == false) {
+                if (errText.length() == 0) {
+                    List<String> stdout = cmd.getStdout();
+                    for (String stdout1 : stdout) {
+                        errText = errText + stdout1 + "\n";
+                    }
+                    List<String> stderr = cmd.getStderr();
+                    for (String stderr1 : stderr) {
+                        errText = errText + stderr1 + "\n";
+                    }
+                }
+                JOptionPane.showMessageDialog(this,errText,"GPG error",JOptionPane.ERROR_MESSAGE);
+            }
+
         }
     }
 
     private void decryptFile() {
         String errText          = "";
-        boolean bOk;
+        boolean bOk             = false;
         String  inputFilename   = null;
         String  outputFilename  = null;
         File    inputFile       = null;
@@ -534,11 +574,39 @@ public class Gphelper extends javax.swing.JFrame {
                     outputFilename = outputFile.getName();
                     command = command + " --output " + outputFile.getAbsolutePath();
                 }
-                SystemCommand cmd = new SystemCommand();
+                final SystemCommand cmd = new SystemCommand();
                 command = command + " --decrypt ";
                 command = command + inputFile.getAbsolutePath();
                 cmd.setCommand(command);
-                bOk = cmd.run();
+                final JDialog loading = new JDialog(this);
+                JPanel p1 = new JPanel(new BorderLayout());
+                p1.add(new JLabel("Please wait..."), BorderLayout.CENTER);
+                loading.setUndecorated(true);
+                loading.getContentPane().add(p1);
+                loading.pack();
+                loading.setLocationRelativeTo(this);
+                loading.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                loading.setModal(true);
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    @Override
+                    protected Boolean doInBackground() throws InterruptedException {
+                        Boolean b = cmd.run();
+                        return b;
+                    }
+                    @Override
+                    protected void done() {
+                        loading.dispose();
+                    }
+                };
+                worker.execute();
+                loading.setVisible(true);
+                try {
+                    bOk = worker.get();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Gphelper.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(Gphelper.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 if (bOk) {
                     String txt = "";
                     List<String> stdout = cmd.getStdout();
