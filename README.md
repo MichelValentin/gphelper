@@ -7,6 +7,8 @@ This is a small Java GUI for GnuPG command line program.
 
 Encrypt/Decrypt text from and to the system clipboard.
 
+Encrypt/Decrypt files.
+
 Requires GnuPG (gpg or gpg2) to be installed and accessible.
 
 Currently tested on Linux, Windows and OS X.
