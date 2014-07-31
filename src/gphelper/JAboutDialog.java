@@ -1,5 +1,6 @@
 package gphelper;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -39,6 +40,7 @@ public class JAboutDialog extends javax.swing.JDialog {
         Map attributes = curFont.getAttributes();
         attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
         jLabelUrl.setFont(curFont.deriveFont(attributes));
+        jLabelUrl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
  
         Rectangle parentBounds = parent.getBounds();
         Dimension size = getSize();
@@ -86,6 +88,7 @@ public class JAboutDialog extends javax.swing.JDialog {
 
         jLabelUrl.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelUrl.setText("GnuPG Helper HomePage");
+        jLabelUrl.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jLabelUrl.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jLabelUrlMousePressed(evt);
