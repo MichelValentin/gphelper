@@ -48,6 +48,10 @@ public class Gphelper extends javax.swing.JFrame {
             bOk = cmd.run();
         }
         if (bOk) {
+            List<String> stdout = cmd.getStdout();
+            getGpgVersion(stdout);
+        }
+        if (bOk) {
             // get public keys
             cmd.setCommand(gpgCommand + " --batch --list-keys");
             bOk = cmd.run();
@@ -84,6 +88,19 @@ public class Gphelper extends javax.swing.JFrame {
         int x = (screen.width / 2) - (size.width / 2);
         int y = (screen.height / 2) - (size.height / 2);
         setLocation(new Point(x, y));
+    }
+    
+    private void getGpgVersion(List<String> list) {
+        boolean bFirstLine = true;
+        gpgVersionShort = "";
+        gpgVersionLong  = "";
+        for (String list1 : list) {
+            if (bFirstLine) {
+                gpgVersionShort = list1;
+                bFirstLine = false;
+            }
+            gpgVersionLong = gpgVersionLong + list1 + "\n";
+        }
     }
     
     private void retrievePublicKeys(List<String> list) {
@@ -687,8 +704,15 @@ public class Gphelper extends javax.swing.JFrame {
         }
         return(passPhrase1);
     }
-   
-    
+
+    public String getGpgVersionShort() {
+        return gpgVersionShort;
+    }
+
+    public String getGpgVersionLong() {
+        return gpgVersionLong;
+    }
+       
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1034,6 +1058,8 @@ public class Gphelper extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
     private String gpgCommand;
+    private String gpgVersionShort;
+    private String gpgVersionLong;
     final private Map<String, String> publicKeysMap = new HashMap<String, String>();
     final private Map<String, String> secretKeysMap = new HashMap<String, String>();
 }

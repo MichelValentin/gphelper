@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 public class JAboutDialog extends javax.swing.JDialog {
 
-    public JAboutDialog(java.awt.Frame parent, boolean modal) {
+    public JAboutDialog(Gphelper parent, boolean modal) {
         super(parent, modal);
         initComponents();
         String version = getVersionfinal(parent.getClass());
@@ -34,6 +34,7 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelDescription.setFont(new Font(curFont.getFontName(), Font.BOLD, curFont.getSize()));
         jLabelCopyright.setText("Copyright (c) 2013 Michel Valentin");
         jLabelVersion.setText(version);
+        jLabelGpgVersion.setText(parent.getGpgVersionShort());
         jLabelUrl.setText("GnuPg Helper Home page");
         jLabelUrl.setToolTipText("http://michelvalentin.github.com/gphelper/");
         curFont = jLabelUrl.getFont();
@@ -63,6 +64,7 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelCopyright = new javax.swing.JLabel();
         jLabelVersion = new javax.swing.JLabel();
         jLabelUrl = new javax.swing.JLabel();
+        jLabelGpgVersion = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("About");
@@ -95,6 +97,9 @@ public class JAboutDialog extends javax.swing.JDialog {
             }
         });
 
+        jLabelGpgVersion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelGpgVersion.setText("GPG Version");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -117,6 +122,10 @@ public class JAboutDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(jLabelUrl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelGpgVersion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -128,8 +137,10 @@ public class JAboutDialog extends javax.swing.JDialog {
                 .addGap(29, 29, 29)
                 .addComponent(jLabelVersion)
                 .addGap(29, 29, 29)
+                .addComponent(jLabelGpgVersion)
+                .addGap(29, 29, 29)
                 .addComponent(jLabelUrl)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButtonOk)
                 .addContainerGap())
         );
@@ -202,6 +213,7 @@ private String getVersionfinal (Class classe) {
     private javax.swing.JButton jButtonOk;
     private javax.swing.JLabel jLabelCopyright;
     private javax.swing.JLabel jLabelDescription;
+    private javax.swing.JLabel jLabelGpgVersion;
     private javax.swing.JLabel jLabelUrl;
     private javax.swing.JLabel jLabelVersion;
     // End of variables declaration//GEN-END:variables
