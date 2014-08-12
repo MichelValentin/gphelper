@@ -35,6 +35,7 @@ public class JAboutDialog extends javax.swing.JDialog {
         jLabelCopyright.setText("Copyright (c) 2013 Michel Valentin");
         jLabelVersion.setText(version);
         jLabelGpgVersion.setText(parent.getGpgVersionShort());
+        jLabelGpgVersion.setToolTipText(parent.getGpgVersionLong());
         jLabelUrl.setText("GnuPg Helper Home page");
         jLabelUrl.setToolTipText("http://michelvalentin.github.com/gphelper/");
         curFont = jLabelUrl.getFont();

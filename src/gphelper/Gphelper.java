@@ -93,14 +93,15 @@ public class Gphelper extends javax.swing.JFrame {
     private void getGpgVersion(List<String> list) {
         boolean bFirstLine = true;
         gpgVersionShort = "";
-        gpgVersionLong  = "";
+        gpgVersionLong  = "<HTML>";
         for (String list1 : list) {
             if (bFirstLine) {
                 gpgVersionShort = list1;
                 bFirstLine = false;
             }
-            gpgVersionLong = gpgVersionLong + list1 + "\n";
+            gpgVersionLong = gpgVersionLong + list1 + "<BR>";
         }
+        gpgVersionLong  += "</HTML>";
     }
     
     private void retrievePublicKeys(List<String> list) {
